@@ -1,0 +1,288 @@
+.streamingClient {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  overflow: hidden;
+}
+
+.gameCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  background: #000;
+}
+
+.inputOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+}
+
+.connectionIndicator {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 8px 12px;
+  border-radius: 6px;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff4444;
+  box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+}
+
+.statusDot.connected {
+  background: #00ff88;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+.statusDot.connecting {
+  background: #ffaa00;
+  box-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.statusText {
+  color: #fff;
+  font-size: 14px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.controls {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 100;
+}
+
+.controlButton {
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #00ff88;
+  border-radius: 8px;
+  color: #00ff88;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.controlButton:hover {
+  background: rgba(0, 255, 136, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+  transform: scale(1.05);
+}
+
+.controlButton:active {
+  transform: scale(0.95);
+}
+
+.hiddenVideo {
+  display: none;
+}
+
+/* Performance Overlay */
+.performanceOverlay {
+  position: fixed;
+  top: 70px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 12px;
+  color: #ccc;
+  backdrop-filter: blur(10px);
+  z-index: 20;
+  min-width: 150px;
+}
+
+.perfItem {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.perfValue {
+  color: #00ff88;
+  font-weight: 600;
+}
+
+/* Debug Log */
+.debugLog {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: rgba(0, 0, 0, 0.95);
+  border-top: 2px solid #333;
+  padding: 15px;
+  overflow-y: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #ccc;
+  backdrop-filter: blur(10px);
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  z-index: 500;
+}
+
+.debugLog.visible {
+  transform: translateY(0);
+}
+
+.debugLog::-webkit-scrollbar {
+  width: 8px;
+}
+
+.debugLog::-webkit-scrollbar-track {
+  background: #111;
+}
+
+.debugLog::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+.debugLog::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.log-entry {
+  margin-bottom: 5px;
+  padding: 2px 0;
+  border-bottom: 1px solid #222;
+}
+
+.log-timestamp {
+  color: #666;
+  margin-right: 10px;
+}
+
+.log-level-info { color: #00ff88; }
+.log-level-warn { color: #ffaa00; }
+.log-level-error { color: #ff4444; }
+
+/* Loading Overlay */
+.loadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: opacity 0.5s ease;
+}
+
+.loadingOverlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loadingSpinner {
+  width: 60px;
+  height: 60px;
+  border: 3px solid #333;
+  border-top: 3px solid #00ff88;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loadingText {
+  font-size: 18px;
+  color: #00ff88;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.loadingSubtext {
+  font-size: 14px;
+  color: #888;
+  text-align: center;
+}
+
+/* Quality Indicator */
+.qualityIndicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-right: 8px;
+}
+
+.qualityBar {
+  width: 3px;
+  height: 12px;
+  background: #333;
+  border-radius: 1px;
+}
+
+.qualityBar.active { background: #00ff88; }
+.qualityBar.medium { background: #ffaa00; }
+.qualityBar.poor { background: #ff4444; }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .connectionIndicator {
+    top: 15px;
+    left: 15px;
+    padding: 6px 10px;
+  }
+
+  .controls {
+    top: 15px;
+    right: 15px;
+  }
+
+  .controlButton {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+
+  .performanceOverlay {
+    top: 60px;
+    left: 15px;
+    font-size: 11px;
+    padding: 10px;
+  }
+} 

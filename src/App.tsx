@@ -1,120 +1,108 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { invoke } from "@tauri-apps/api/core";
+import StreamingClient from "./components/StreamingClient";
+import { Window } from '@tauri-apps/api/window';
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  async function greet() {
-    if (!name.trim()) return;
-    
-    setIsLoading(true);
+  useEffect(() => {
+    const handleKeyPress = async (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isStreaming && isFullscreen) {
+        try {
+          const currentWindow = Window.getCurrent();
+          // Only exit fullscreen, never enter it with Escape
+          await currentWindow.setFullscreen(false);
+          await currentWindow.setDecorations(true);
+          setIsFullscreen(false);
+        } catch (err) {
+          console.error("Failed to exit full-screen mode:", err);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [isStreaming, isFullscreen]);
+
+  const handlePlay = async () => {
     try {
-      const message = await invoke<string>("greet", { name });
-      setGreetMsg(message);
-    } catch (error) {
-      console.error("Failed to greet:", error);
-      setGreetMsg("Failed to connect to Tauri backend");
-    } finally {
-      setIsLoading(false);
+      const currentWindow = Window.getCurrent();
+      
+      // First make the window fullscreen
+      await currentWindow.setFullscreen(true);
+      await currentWindow.setDecorations(false);
+      setIsFullscreen(true);
+      
+      // Then transition to the streaming view
+      setIsStreaming(true);
+    } catch (err) {
+      console.error("Failed to enter full-screen mode:", err);
     }
+  };
+
+  const handleToggleFullscreen = async () => {
+    try {
+      const currentWindow = Window.getCurrent();
+      const fullscreen = await currentWindow.isFullscreen();
+      
+      if (fullscreen) {
+        await currentWindow.setFullscreen(false);
+        await currentWindow.setDecorations(true);
+      } else {
+        await currentWindow.setFullscreen(true);
+        await currentWindow.setDecorations(false);
+      }
+      setIsFullscreen(!fullscreen);
+    } catch (err) {
+      console.error("Failed to toggle full-screen mode:", err);
+    }
+  };
+
+  const handleBack = async () => {
+    try {
+      const currentWindow = Window.getCurrent();
+      // Exit fullscreen when going back to home
+      await currentWindow.setFullscreen(false);
+      await currentWindow.setDecorations(true);
+      setIsFullscreen(false);
+      setIsStreaming(false);
+    } catch (err) {
+      console.error("Failed to exit full-screen mode:", err);
+    }
+  };
+
+  // If in streaming mode, show the StreamingClient
+  if (isStreaming) {
+    return (
+      <StreamingClient 
+        onToggleFullscreen={handleToggleFullscreen} 
+        isFullscreen={isFullscreen}
+        onBack={handleBack}
+      />
+    );
   }
 
+  // Otherwise show the landing page
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8">
-      <div className="max-w-2xl w-full space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold tracking-tight">
-            Tauri + shadcn/ui + Tailwind
+    <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
+      <div className="text-center space-y-8">
+        <div className="space-y-3">
+          <h1 className="text-5xl font-bold text-white tracking-tight">
+            Reflex Gaming
           </h1>
-          <p className="text-xl text-muted-foreground">
-            Modern desktop app boilerplate
+          <p className="text-xl text-zinc-400">
+            Your Remote Game Station
           </p>
-          <div className="flex justify-center gap-2">
-            <Badge variant="secondary">Tauri v2</Badge>
-            <Badge variant="secondary">React 18</Badge>
-            <Badge variant="secondary">TypeScript</Badge>
-          </div>
         </div>
-
-        {/* Demo Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Demo</CardTitle>
-            <CardDescription>
-              Test the Tauri backend integration
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex gap-2">
-              <Input
-                placeholder="Enter your name..."
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && greet()}
-              />
-              <Button 
-                variant="destructive"
-                onClick={greet} 
-                disabled={isLoading || !name.trim()}
-              >
-                {isLoading ? "..." : "Greet"}
-              </Button>
-            </div>
-            {greetMsg && (
-              <div className="p-3 bg-muted rounded-md">
-                <p className="text-sm">{greetMsg}</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Features */}
-        <div className="grid md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">⚡ Fast</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                Rust-powered backend with native performance
-              </CardDescription>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">🎨 Modern</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                Beautiful UI with shadcn/ui and Tailwind CSS
-              </CardDescription>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">🔐 Secure</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription>
-                Memory safety with Rust and Tauri's security model
-              </CardDescription>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Footer */}
-        <div className="text-center text-sm text-muted-foreground">
-          <p>Built with Tauri, React, TypeScript, shadcn/ui, and Tailwind CSS</p>
-        </div>
+        
+        <Button 
+          className="text-2xl px-12 py-8 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-zinc-800/50"
+          onClick={handlePlay}
+        >
+          Play
+        </Button>
       </div>
     </div>
   );
