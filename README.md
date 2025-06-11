@@ -1,4 +1,4 @@
-# Tauri + shadcn/ui + Tailwind CSS Boilerplate
+<!-- # Tauri + shadcn/ui + Tailwind CSS Boilerplate
 
 A simple desktop app boilerplate with Tauri v2, shadcn/ui, and Tailwind CSS.
 
@@ -59,4 +59,4 @@ bunx shadcn@latest add card
 
 ## License
 
-MIT
+MIT -->
